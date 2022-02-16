@@ -38,6 +38,8 @@ def run_epoch(generator, discriminator, g_optimizer, d_optimizer):
         img_batch, label_batch = img_batch.to(device), label_batch.to(device)
         img_batch = img_batch.reshape(-1, 28 * 28)
 
+        d_optimizer.zero_grad()
+
         p_real = discriminator(img_batch)
         p_fake = discriminator(generator(sample_z(batch_size)))
 
@@ -49,14 +51,15 @@ def run_epoch(generator, discriminator, g_optimizer, d_optimizer):
             p_fake, torch.zeros(p_fake.size()).to(device)
         )
 
-        d_optimizer.zero_grad()
         loss_d.backward()
         d_optimizer.step()
+
+
+        g_optimizer.zero_grad()
 
         p_fake = discriminator(generator(sample_z(batch_size)))
         loss_g = criterion(p_fake, torch.ones(p_fake.size()).to(device))
 
-        g_optimizer.zero_grad()
         loss_g.backward()
         g_optimizer.step()
 
